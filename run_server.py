@@ -43,11 +43,23 @@ def run_server():
         '-t', str(args.threads),
         '--batch-size', str(args.batch_size),
         '-ngl', '0',  # No GPU layers by default
+        '-n', str(args.n_predict),
+        '--temp', str(args.temperature),
     ]
     
     # Add optional parameters if specified
     if args.n_gpu_layers > 0:
         command[command.index('-ngl') + 1] = str(args.n_gpu_layers)
+    
+    # Add system prompt if provided
+    if args.prompt:
+        command.extend(['-p', args.prompt])
+    
+    # Add continuous batching by default for better performance
+    if args.cont_batching:
+        command.extend(['--cont-batching'])
+    else:
+        command.extend(['-cb'])  # Enable continuous batching by default
     
     # Add additional parameters for production
     if args.mlock:
@@ -58,9 +70,6 @@ def run_server():
         
     if args.parallel > 0:
         command.extend(['--parallel', str(args.parallel)])
-    
-    if args.cont_batching:
-        command.extend(['--cont-batching'])
     
     if args.embedding:
         command.extend(['--embedding'])
@@ -75,7 +84,7 @@ def run_server():
     run_command(command)
 
 def signal_handler(sig, frame):
-    logger.info("Ctrl+C pressed, exiting...")
+    logger.info("Ctrl+C pressed, shutting down server...")
     sys.exit(0)
 
 if __name__ == "__main__":
@@ -84,12 +93,15 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Run BitNet model as an OpenAI-compatible API server')
     parser.add_argument("-m", "--model", type=str, help="Path to model file", required=False, 
                         default="models/bitnet_b1_58-3B/ggml-model-i2_s.gguf")
-    parser.add_argument("-c", "--ctx-size", type=int, help="Size of the prompt context (increase for longer inputs/outputs)", required=False, default=4096)
+    parser.add_argument("-c", "--ctx-size", type=int, help="Size of the prompt context", required=False, default=4096)
     parser.add_argument("-p", "--port", type=int, help="Server port", required=False, default=8080)
     parser.add_argument("--host", type=str, help="Server host", required=False, default="127.0.0.1")
     parser.add_argument("-t", "--threads", type=int, help="Number of threads to use", required=False, default=4)
     parser.add_argument("-b", "--batch-size", type=int, help="Batch size for prompt processing", required=False, default=512)
     parser.add_argument("-ngl", "--n-gpu-layers", type=int, help="Number of GPU layers to use", required=False, default=0)
+    parser.add_argument("-n", "--n-predict", type=int, help="Number of tokens to predict (max output length)", required=False, default=4096)
+    parser.add_argument("--temperature", type=float, help="Temperature for sampling (higher = more creative, lower = more deterministic)", required=False, default=0.8)
+    parser.add_argument("--prompt", type=str, help="System prompt for the model", required=False)
     parser.add_argument("--mlock", action='store_true', help="Force system to keep model in RAM rather than swapping or compressing")
     parser.add_argument("--numa", action='store_true', help="Enable NUMA support for multiple CPU sockets")
     parser.add_argument("--parallel", type=int, help="Number of parallel sequences to decode", required=False, default=0)
