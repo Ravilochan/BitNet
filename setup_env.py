@@ -199,9 +199,9 @@ def compile():
         logging.error(f"Arch {arch} is not supported yet")
         exit(0)
     logging.info("Compiling the code using CMake.")
-    run_command(["cmake", "-B", "build", *COMPILER_EXTRA_ARGS[arch], *OS_EXTRA_ARGS.get(platform.system(), [])], log_step="generate_build_files")
-    # run_command(["cmake", "--build", "build", "--target", "llama-cli", "--config", "Release"])
-    run_command(["cmake", "--build", "build", "--config", "Release"], log_step="compile")
+    run_command(["cmake", "-B", "build", "-DLLAMA_BUILD_SERVER=ON", *COMPILER_EXTRA_ARGS[arch], *OS_EXTRA_ARGS.get(platform.system(), [])], log_step="generate_build_files")
+    # Build both llama-cli and llama-server targets
+    run_command(["cmake", "--build", "build", "--target", "llama-cli", "llama-server", "--config", "Release"], log_step="compile")
 
 def main():
     setup_gguf()
