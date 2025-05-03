@@ -200,8 +200,8 @@ def compile():
         exit(0)
     logging.info("Compiling the code using CMake.")
     run_command(["cmake", "-B", "build", "-DLLAMA_BUILD_SERVER=ON", *COMPILER_EXTRA_ARGS[arch], *OS_EXTRA_ARGS.get(platform.system(), [])], log_step="generate_build_files")
-    # Build both llama-cli and llama-server targets
-    run_command(["cmake", "--build", "build", "--target", "llama-cli", "llama-server", "--config", "Release"], log_step="compile")
+    # Build both llama-cli and llama-server targets with parallel compilation
+    run_command(["cmake", "--build", "build", "--target", "llama-cli", "llama-server", "--config", "Release", "--parallel", str(os.cpu_count())], log_step="compile")
 
 def main():
     setup_gguf()
