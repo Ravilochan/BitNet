@@ -91,8 +91,7 @@ if __name__ == "__main__":
     signal.signal(signal.SIGINT, signal_handler)
     
     parser = argparse.ArgumentParser(description='Run BitNet model as an OpenAI-compatible API server')
-    parser.add_argument("-m", "--model", type=str, help="Path to model file", required=False, 
-                        default="models/bitnet_b1_58-3B/ggml-model-i2_s.gguf")
+    parser.add_argument("-m", "--model", type=str, help="Path to model file", required=True)
     parser.add_argument("-c", "--ctx-size", type=int, help="Size of the prompt context", required=False, default=4096)
     parser.add_argument("-p", "--port", type=int, help="Server port", required=False, default=8080)
     parser.add_argument("--host", type=str, help="Server host", required=False, default="127.0.0.1")
