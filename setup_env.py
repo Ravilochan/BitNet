@@ -44,6 +44,18 @@ SUPPORTED_HF_MODELS = {
     "microsoft/BitNet-b1.58-2B-4T": {
         "model_name": "BitNet-b1.58-2B-4T",
     },
+    "tiiuae/Falcon-E-3B-Instruct": {
+        "model_name": "Falcon-E-3B-Instruct",
+    },
+    "tiiuae/Falcon-E-1B-Instruct": {
+        "model_name": "Falcon-E-1B-Instruct",
+    },
+    "tiiuae/Falcon-E-3B-Base": {
+        "model_name": "Falcon-E-3B-Base",
+    },
+    "tiiuae/Falcon-E-1B-Base": {
+        "model_name": "Falcon-E-1B-Base",
+    },
 }
 
 SUPPORTED_QUANT_TYPES = {
@@ -144,7 +156,7 @@ def setup_gguf():
 def gen_code():
     _, arch = system_info()
     
-    llama3_f3_models = set([model['model_name'] for model in SUPPORTED_HF_MODELS.values() if model['model_name'].startswith("Falcon3") or model['model_name'].startswith("Llama")])
+    llama3_f3_models = set([model['model_name'] for model in SUPPORTED_HF_MODELS.values() if model['model_name'].startswith("Falcon") or model['model_name'].startswith("Llama")])
 
     if arch == "arm64":
         if args.use_pretuned:
@@ -199,7 +211,7 @@ def compile():
         logging.error(f"Arch {arch} is not supported yet")
         exit(0)
     logging.info("Compiling the code using CMake.")
-    run_command(["cmake", "-B", "build", "-DLLAMA_BUILD_SERVER=ON", *COMPILER_EXTRA_ARGS[arch], *OS_EXTRA_ARGS.get(platform.system(), [])], log_step="generate_build_files")
+    run_command(["cmake", "-B", "build", "-DLLAMA_BUILD_SERVER=ON", *COMPILER_EXTRA_ARGS[arch], *OS_EXTRA_ARGS.get(platform.system(), []), "-DCMAKE_C_COMPILER=clang", "-DCMAKE_CXX_COMPILER=clang++"], log_step="generate_build_files")
     # Build both llama-cli and llama-server targets with parallel compilation
     run_command(["cmake", "--build", "build", "--target", "llama-cli", "llama-server", "--config", "Release", "--parallel", str(os.cpu_count())], log_step="compile")
 
