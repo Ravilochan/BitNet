@@ -1,0 +1,53 @@
+# Git
+.git
+.gitignore
+.github
+
+# Docker
+.dockerignore
+Dockerfile*
+docker-compose*
+
+# Build artifacts
+build/
+*.o
+*.a
+*.so
+*.dylib
+*.dll
+*.exe
+
+# Models directory (will be mounted as volume)
+models/
+
+# Documentation
+docs/
+README*
+LICENSE
+CODE_OF_CONDUCT.md
+SECURITY.md
+
+# Media files
+media/
+assets/
+*.mp4
+*.png
+*.jpg
+
+# Python cache
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.coverage
+
+# Editor directories and files
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# OS specific
+.DS_Store
+Thumbs.db
