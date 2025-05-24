@@ -1,0 +1,32 @@
+services:
+  bitnet:
+    build:
+      context: . # Looks for the Dockerfile in the current directory
+      dockerfile: Dockerfile # Specifies the Dockerfile to use for building the image
+    ports:
+      - "8080:8080" # Maps port 8080 on the host to port 8080 in the container
+        # The Dockerfile EXPOSEs 8080, and the server inside likely runs on this port.
+
+    # By default, Docker Compose will use the ENTRYPOINT defined in the Dockerfile.
+    # The Dockerfile's ENTRYPOINT is configured to run 'run_server.py' with specific arguments,
+    # including the model path: 'models/BitNet-b1.58-2B-4T/ggml-model-i2_s.gguf',
+    # which is relative to the WORKDIR '/opt/bitnet' set in the Dockerfile.
+    #
+    # This current setup means:
+    # 1. The 'command' section is removed from here, so Dockerfile's ENTRYPOINT takes full effect.
+    # 2. The 'volumes' section for models is removed, so the model baked into the image
+    #    (downloaded during Dockerfile build) will be used.
+    # 3. The 'environment' variables previously here (HOST, PORT, THREADS, CTX_SIZE) are removed
+    #    as the Dockerfile's ENTRYPOINT hardcodes these parameters or uses system values (e.g., $(nproc)).
+    #
+    # To customize (e.g., use local models or change server parameters):
+    # - To use local models: Add a 'volumes' section, for example:
+    #   volumes:
+    #     - ./models:/opt/bitnet/models # Mounts host's ./models to /opt/bitnet/models in container
+    #   Ensure your local model path matches or update the --model argument if you override the command.
+    #
+    # - To change server parameters: You can add a 'command' key here to override the
+    #   command part of the Dockerfile's ENTRYPOINT. Alternatively, modify the
+    #   ENTRYPOINT in the Dockerfile to accept environment variables for more flexibility.
+
+    restart: unless-stopped
